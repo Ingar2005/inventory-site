@@ -1,0 +1,33 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Count</title>
+</head>
+    <body>
+    <form id="stock-form">
+
+    </form>
+    <script>
+        async function getStockData() {
+
+        }
+        $(document).ready(async function  () {
+            const form = $("#stock-form");
+
+            var stock = await fetch('http://localhost:5000/fullStock').then(res => res.json());
+            stock = await stock
+            var inner = ""
+            for (stock of stock) {
+                inner +=`
+                <lable>${stock.ItemName}</lable>
+                <input type="number" value=${stock.Level}>
+                `
+            }
+            form.html(inner)
+        })
+
+    </script>
+    </body>
+</html>
