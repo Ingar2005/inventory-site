@@ -16,13 +16,13 @@
             for (stock of stocks) {
                 console.log(stock.LastChanged.Time)
                 var logdeet =""
-                if (stock.LastLogID === 0) logdeet = "N/A"; else logdeet = (new Date(stock.LastChanged.Time)).getDate() - (new Date().getDate());
+                if (stock.LastLogID === 0) logdeet = "N/A"; else logdeet = Math.abs((new Date(stock.LastChanged.Time)).getDate() - (new Date().getDate()));
                 inner +=`
                 <lable for='stock${stock.StockID}' >${stock.ItemName}</lable>
                 <input id='stock${stock.StockID}' type="number" value=${stock.Level}>
                 <label for='stock${stock.StockID}'>${logdeet}</label>
                 ` }
-            inner += `<button id="form-button">Submit</button>`
+            inner += `<button id="form-button" type="submit">Submit</button>`
             form.innerHTML = inner
         }
     </script>
@@ -41,23 +41,45 @@
             }
         }
     </style>
-    <title>Count</title>
-</head>
+    <title>Count</title> </head>
     <body onload="onload()">
     <div class = "form-container">
-
+<!--MAKE ON CHANGE MAKE SURE CAN OLY BE INTGER OR ?.5 FLOATS-->
         <form class="stock-form" id="stock-form">
 
 
         </form>
     </div>
+    <input id="random">
     <script>
         $(document).ready(() => {
             form = $('#stock-form');
             form.on('submit', async function(e) {
-                    e.preventDefault();
-                    const formData = $(this).serialize();
-                    console.log(formData);
+                e.preventDefault();
+                data = $("input")
+                for (let i = 0; i< stocks.length; i++){
+                    line = stocks[i]
+                    id = line.StockID;
+                    prevLevel = line.Level
+                    inputBox = $(`#stock${id}`)
+                    if (inputBox[0].value == prevLevel){
+                        console.log("same!")
+                    }else{
+                        line.Level = parseFloat(inputBox[0].value)
+                        console.log(line)
+                        fetch('http://localhost:5000/fullStock/', {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(line)
+                        })
+                            .then(response => response.text())
+                            .then(result => console.log("Response from server:", result))
+                            .catch(error => console.error("Error:", error))
+
+                    }
+                }
                 })
 
         })
