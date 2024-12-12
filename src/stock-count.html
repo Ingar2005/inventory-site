@@ -22,7 +22,7 @@
                 <input id='stock${stock.StockID}' type="number" value=${stock.Level}>
                 <label for='stock${stock.StockID}'>${logdeet}</label>
                 ` }
-            inner += `<button id="form-button" type="submit">Submit</button>`
+            inner += ``
             form.innerHTML = inner
         }
     </script>
@@ -41,6 +41,7 @@
             }
         }
     </style>
+
     <title>Count</title> </head>
     <body onload="onload()">
     <div class = "form-container">
@@ -50,7 +51,9 @@
 
         </form>
     </div>
-    <input id="random">
+    <span>
+        <button id="form-button" type="submit" form="stock-form">Submit</button>
+    </span>
     <script>
         $(document).ready(() => {
             form = $('#stock-form');
