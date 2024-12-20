@@ -1,0 +1,75 @@
+<!DOCTYPE html> <html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buttons Layout</title>
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #e0f2ff; /* Light blue background */
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 100px; /* Increased gap to spread out the boxes */
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .button-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      aspect-ratio: 1 / 1;
+      min-width: 250px; /* Adjusted width for larger buttons */
+
+    }
+    .button-wrapper-hidden {
+      display: none;
+    }
+    .btn:hover {
+      background-color: #4169e1; /* Slightly darker blue on hover */
+    }
+    .btn {
+      min-height: 256px;
+      width: 100%;
+      background-color: #4682b4; /* Steel blue */
+      color: white;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      aspect-ratio: 1 / 1;
+      border-radius: 10px; /* Rounded corners for a softer look */
+    }
+  a{
+    text-decoration: none;
+
+  }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="logs" class="button-wrapper">
+      <button  class="btn">Logs</button>
+    </div>
+
+    <div id="manage" class="button-wrapper">
+      <button  class="btn" >Manage Stock</button>
+    </div>
+
+    </div>
+<script>
+
+</script>
+</body>
+</html>

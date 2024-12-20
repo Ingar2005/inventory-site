@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Manage Stock</title>
+    <script>
+        var items
+        var rooms
+        var suppliers
+
+        async function load(){
+            formItems = document.getElementById("items")
+            formRooms = document.getElementById("rooms")
+            formSuppliers = document.getElementById("suppliers")
+
+            items = fetch(`http://localhost:5000/fullStock/`).then(response => response.json())
+            items = await items
+            for (item of items){
+                formItems.innerHTML += `<a class="cross" id="${item.StockID}">&#10005;</a><a> ${item.ItemName}</a>`
+            }
+        }
+    </script>
+</head>
+
+<body onload="load()">
+<form>
+    <fieldset id="items"></fieldset>
+    <fieldset id="rooms"></fieldset>
+    <fieldset id="suppliers"></fieldset>
+</form>
+<script>
+    var temp
+        $(document).on("click",".cross",async function(e) {
+            e.preventDefault()
+            temp = this.id
+            try{
+                let res = await fetch("http://localhost:5000/stock/" + temp, {
+                    method: "DELETE",
+                })
+                if (!res.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+            }catch(e){
+                console.log(e)
+            }
+
+
+        })
+</script>
+</body>
+</html>
