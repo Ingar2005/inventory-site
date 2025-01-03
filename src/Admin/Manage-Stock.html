@@ -17,32 +17,233 @@
 
             items = fetch(`http://localhost:5000/fullStock/`).then(response => response.json())
             items = await items
-            for (item of items){
-                formItems.innerHTML += `<a class="cross" id="${item.StockID}">&#10005;</a><a> ${item.ItemName}</a>`
+            if (items != null) {
+                for (item of items) {
+                    formItems.innerHTML += `<div class="form-row" id="${item.StockID}">
+                    <a class="cross" id="${item.StockID}" data-type="stock">&#10005;</a>
+                    <a class="item" id="item-${item.StockID}"> ${item.ItemName}</a>
+                    <div class="level">${item.Level}</div>
+                    </div>`
+                }
             }
+
+            rooms= await fetch(`http://localhost:5000/rooms/`).then(response => response.json())
+            rooms= await rooms
+            for (room of rooms){
+                formRooms.innerHTML += `<div class="form-row" id="${room.StockID}"><a class="cross" id="${room.RoomId}" data-type="room">&#10005;</a><a class="item" id="room-${room.RoomId}">${room.RoomName}</a></div>`
+            }
+
+            suppliers= await fetch(`http://localhost:5000/suppliers/`).then(response => response.json())
+            suppliers= await suppliers
+            for (supplier of suppliers){
+                formSuppliers.innerHTML += `<div class="form-row"><a class="cross" id="${supplier.SupplierID}" data-type="supplier">&#10005;</a><a class="item" id="supplier-${supplier.SupplierID}">${supplier.SupplierName}</a> </div>`
+            }
+            fillRooms()
+        }
+        async function fillRooms(){
+            list = document.getElementById("room-list").innerHTML
+            console.log(rooms)
+            for (room of rooms){
+                list += `<option id="room-${room.RoomId}" value="${room.RoomName}">${room.RoomName}</option>`
+            }
+            document.getElementById("room-list").innerHTML = list
         }
     </script>
+    <style>
+        /*Steel Blue: #4682B4*/
+        /*Darker Steel Blue: #36628C*/
+
+        /*Light Steel Blue: #B0C4DE*/
+        /*Deep Sky Blue: #00BFFF*/
+        /*Dodger Blue: #1E90FF*/
+        /*Alice Blue: #F0F8FF*/
+        body{
+            background-color: #F0F8FF;
+        }
+        .main-form{
+
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+        fieldset{
+            display: flex;
+            flex-direction: column;
+            border-radius: 10px;
+            border-color:  #4682B4;
+        }
+        .form-row{
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .cross{
+            cursor: pointer;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .item{
+            cursor: pointer;
+        }
+        .add-button{
+            cursor: pointer;
+            border: none;
+            outline: none;
+            padding: 20px 50px;
+            background-color: #4682B4;
+            border-radius: 10px;
+        }
+        .level{
+            display: unset;
+            justify-self: end;
+        }
+        .disable{
+            display: none;
+        }
+        .return{
+            text-align: right;
+            cursor: pointer;
+        }
+        .alt-form{
+
+        }
+    </style>
 </head>
 
 <body onload="load()">
-<form>
-    <fieldset id="items"></fieldset>
-    <fieldset id="rooms"></fieldset>
-    <fieldset id="suppliers"></fieldset>
+<div id="main-body">
+<form class="main-form">
+    <fieldset id="items">
+    <button id="item-button" class="add-button">Add Item</button>
+        </fieldset>
+    <fieldset id="rooms">
+    <button id="room-button" class="add-button">Add Room</button>
+        </fieldset>
+    <fieldset id="suppliers">
+        <button id="supplier-button" class="add-button">Add Supplier</button>
+    </fieldset>
 </form>
+</div>
+<div id="item-form-container" class="alt-form" style="display: none;">
+    <div style="display: block;width: 100%;text-align: right;"> <span class="return">&#10005;</span></div>
+    <form id="item-form">
+        <label for="itemName">Item Name:</label>
+        <input type="text" id="itemName" name="itemName" required>
+        <label for="level">Current Level:</label>
+        <input type="number" id="level" name="level" required>
+        <label for="incident">Incident Level:</label>
+        <input type="number" id="incident" name="incident" required>
+        <label for="room">Room:</label>
+        <input type="text" id="room" name="room" list="room-list" required>
+        <datalist id="room-list"></datalist>
+        <button>Submit</button>
+    </form>
+</div>
+<div id="room-form-container" class="alt-form" style="display: none;">
+    <div style="display: block;width: 100%;text-align: right;"> <span class="return">&#10005;</span></div>
+    <form id="room-form">
+        <label for="roomName">Room Name:</label>
+        <input type="text" id="roomName" name="roomName" placeholder="Enter Room Name" required>
+        <button>Submit</button>
+    </form>
+</div>
+
 <script>
     var temp
         $(document).on("click",".cross",async function(e) {
             e.preventDefault()
             temp = this.id
-            try{
-                let res = await fetch("http://localhost:5000/stock/" + temp, {
-                    method: "DELETE",
-                })
-                if (!res.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+            type = $(this).data("type")
+            if (type == "stock"){
+                try{
+                    let res = await fetch("http://localhost:5000/stock/" + temp, {
+                        method: "DELETE",
+                    })
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    location.reload(true)
+                }catch(e) {
+                    console.log(e)
                 }
-            }catch(e){
+            }
+            if (type == "room"){
+                try{
+                    let res = await fetch("http://localhost:5000/rooms/" + temp, {
+                        method: "DELETE",
+                    })
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    location.reload(true)
+                }catch(e){
+                    console.log(e)
+
+                }
+            }
+})
+        $(document).on("click",".add-button",async function(e) {
+            e.preventDefault()
+            temp = this.id
+            $("#main-body").hide()
+            if (temp === "room-button"){
+                $("#room-form-container").show()
+            }else if(temp ==="item-button"){
+                $("#item-form-container").show()
+            }
+
+        })
+        $(document).on("click",".return",function(e) {
+            e.preventDefault()
+            $(".alt-form").hide()
+            $("#main-body").show()
+
+        })
+        $(document).on("submit", "#room-form", async function(e) {
+            e.preventDefault()
+            room = {RoomName: $("#room").val()}
+            try {
+                res = await fetch("http://localhost:5000/rooms/",
+                    {
+                        method: "POST", // HTTP method
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(room),
+                    })
+                location.reload(true)
+            }catch (e){
+                console.log(e)
+            }
+
+
+        })
+        $(document).on("submit", "#item-form", async function(e) {
+            e.preventDefault()
+            var id
+            room = e.currentTarget[3].value
+            for (roomVal of rooms){
+                if (roomVal.RoomName == room){
+                    id = roomVal.RoomId
+                }
+            }
+            item = {
+                StockID: 0,
+                ItemName: $("#itemName").val(),
+                Level: parseFloat($("#level").val()),
+                RoomID: parseInt(id),
+                SupplierID: 1,
+                IncidentLevel:parseFloat( $("#incident").val()),
+                LastLogID: 0
+            }
+            try{
+                res = await fetch("http://localhost:5000/stock/",{
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(item),
+                    })
+                location.reload(true)
+                }catch (e){
                 console.log(e)
             }
 
