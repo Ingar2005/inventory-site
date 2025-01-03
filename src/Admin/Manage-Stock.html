@@ -42,7 +42,6 @@
         }
         async function fillRooms(){
             list = document.getElementById("room-list").innerHTML
-            console.log(rooms)
             for (room of rooms){
                 list += `<option id="room-${room.RoomId}" value="${room.RoomName}">${room.RoomName}</option>`
             }
@@ -199,7 +198,7 @@
         })
         $(document).on("submit", "#room-form", async function(e) {
             e.preventDefault()
-            room = {RoomName: $("#room").val()}
+            room = {RoomName: $("#roomName").val()}
             try {
                 res = await fetch("http://localhost:5000/rooms/",
                     {
