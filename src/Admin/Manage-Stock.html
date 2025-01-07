@@ -21,7 +21,7 @@
                 for (item of items) {
                     formItems.innerHTML += `<div class="form-row" id="${item.StockID}">
                     <a class="cross" id="${item.StockID}" data-type="stock">&#10005;</a>
-                    <a class="item" id="item-${item.StockID}"> ${item.ItemName}</a>
+                    <a class="item" id="${item.StockID}" data-type="item"> ${item.ItemName}</a>
                     <div class="level">${item.Level}</div>
                     </div>`
                 }
@@ -30,7 +30,7 @@
             rooms= await fetch(`http://localhost:5000/rooms/`).then(response => response.json())
             rooms= await rooms
             for (room of rooms){
-                formRooms.innerHTML += `<div class="form-row" id="${room.StockID}"><a class="cross" id="${room.RoomId}" data-type="room">&#10005;</a><a class="item" id="room-${room.RoomId}">${room.RoomName}</a></div>`
+                formRooms.innerHTML += `<div class="form-row" id="${room.RoomId}"><a class="cross" id="${room.RoomId}" data-type="room">&#10005;</a><a class="item" id="${room.RoomId}" data-type="room">${room.RoomName}</a></div>`
             }
 
             suppliers= await fetch(`http://localhost:5000/suppliers/`).then(response => response.json())
@@ -124,6 +124,7 @@
 <div id="item-form-container" class="alt-form" style="display: none;">
     <div style="display: block;width: 100%;text-align: right;"> <span class="return">&#10005;</span></div>
     <form id="item-form">
+        <input style="display: none;" type="number" id="itemId" name="itemId" value="0">
         <label for="itemName">Item Name:</label>
         <input type="text" id="itemName" name="itemName" required>
         <label for="level">Current Level:</label>
@@ -140,6 +141,7 @@
     <div style="display: block;width: 100%;text-align: right;"> <span class="return">&#10005;</span></div>
     <form id="room-form">
         <label for="roomName">Room Name:</label>
+        <input style="display: none;" type="number" id="roomId" name="roomId" value="0">
         <input type="text" id="roomName" name="roomName" placeholder="Enter Room Name" required>
         <button>Submit</button>
     </form>
@@ -192,59 +194,146 @@
         })
         $(document).on("click",".return",function(e) {
             e.preventDefault()
+
+            $("#itemId").val(0)
+            $("#itemName").val("")
+            $("#level").val("")
+            $("#incident").val("")
+            $("#room").val("")
+
+            $("#roomId").val(0)
+            $("#roomName").val("")
+
+
             $(".alt-form").hide()
             $("#main-body").show()
 
         })
         $(document).on("submit", "#room-form", async function(e) {
             e.preventDefault()
-            room = {RoomName: $("#roomName").val()}
-            try {
-                res = await fetch("http://localhost:5000/rooms/",
-                    {
-                        method: "POST", // HTTP method
+
+            room = {id:$("#roomId").val(),RoomName: $("#roomName").val()}
+            if (room.id != 0){
+                try{
+                    res = await fetch("http://localhost:5000/rooms/" + room.id, {
+                        method: "PATCH",
                         headers: {
-                            "Content-Type": "application/json",
+                            "Content-Type": "application/json"
                         },
-                        body: JSON.stringify(room),
+                        body: JSON.stringify(room)
+
                     })
-                location.reload(true)
-            }catch (e){
-                console.log(e)
+                    location.reload(true)
+                }catch(e) {
+                    console.log(e)
+                }
+
+            }else{
+                try {
+                    res = await fetch("http://localhost:5000/rooms/",
+                        {
+                            method: "POST", // HTTP method
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(room),
+                        })
+                    location.reload(true)
+                }catch (e){
+                    console.log(e)
+                }
+
+
             }
 
-
         })
+        $(document).on("click", ".item", async function(e) {
+
+            type = $(this).data("type")
+            id = this.id
+            var targ
+            if (type == "room"){
+                for (room of rooms){
+                    if (room.RoomId == id){
+                        targ = room
+                    }
+                }
+                $("#roomName").val(targ.RoomName)
+                $("#roomId").val(targ.RoomId)
+
+                $("#main-body").hide()
+                $("#room-form-container").show()
+            }else if (type == "item"){
+                for (item of items){
+                    if (item.StockID == id){
+                        targ = item
+                    }
+                }
+
+                $("#itemName").val(targ.ItemName)
+                $("#itemId").val(targ.StockID)
+                $("#level").val(targ.Level)
+                $("#incident").val(targ.IncidentLevel)
+                $("#room").val(targ.Room)
+
+               $("#main-body").hide()
+               $("#item-form-container").show()
+
+
+            }
+        })
+
+
+
         $(document).on("submit", "#item-form", async function(e) {
             e.preventDefault()
             var id
-            room = e.currentTarget[3].value
+            room = $("#room").val()
             for (roomVal of rooms){
                 if (roomVal.RoomName == room){
-                    id = roomVal.RoomId
+                    roomId = roomVal.RoomId
                 }
             }
+            console.log(roomId)
             item = {
                 StockID: 0,
                 ItemName: $("#itemName").val(),
                 Level: parseFloat($("#level").val()),
-                RoomID: parseInt(id),
+                RoomID: parseInt(roomId),
                 SupplierID: 1,
                 IncidentLevel:parseFloat( $("#incident").val()),
                 LastLogID: 0
             }
-            try{
-                res = await fetch("http://localhost:5000/stock/",{
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(item),
+
+            if ($("#itemId").val() != 0){
+                item.StockID = parseInt($("#itemId").val())
+                try{
+                    res = await fetch("http://localhost:5000/stock/" + $("#itemId").val(), {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(item)
                     })
-                location.reload(true)
+                    location.reload(true)
                 }catch (e){
-                console.log(e)
+                    console.log(e)
+                }
+            }else{
+                try{
+                    res = await fetch("http://localhost:5000/stock/",{
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(item),
+                    })
+                    // location.reload(true)
+                }catch (e){
+                    console.log(e)
+                }
             }
+
 
 
         })
