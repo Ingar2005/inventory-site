@@ -19,10 +19,10 @@
             items = await items
             if (items != null) {
                 for (item of items) {
-                    formItems.innerHTML += `<div class="form-row" id="${item.StockID}">
+                    formItems.innerHTML += `<div class="form-row item-row" id="${item.StockID}">
                     <a class="cross" id="${item.StockID}" data-type="stock">&#10005;</a>
                     <a class="item" id="${item.StockID}" data-type="item"> ${item.ItemName}</a>
-                    <div class="level">${item.Level}</div>
+                    <div class="level" style="margin-left: auto; aspect-ratio: 1 / 1;border: 1px; border-color:#1979df; padding-left: 5px;padding-right: 5px; border-radius: 5px ">${item.Level}</div>
                     </div>`
                 }
             }
@@ -30,13 +30,17 @@
             rooms= await fetch(`http://localhost:5000/rooms/`).then(response => response.json())
             rooms= await rooms
             for (room of rooms){
-                formRooms.innerHTML += `<div class="form-row" id="${room.RoomId}"><a class="cross" id="${room.RoomId}" data-type="room">&#10005;</a><a class="item" id="${room.RoomId}" data-type="room">${room.RoomName}</a></div>`
+                if (room.RoomId != 1) {
+                    formRooms.innerHTML += `<div class="form-row" id="${room.RoomId}"><a class="cross" id="${room.RoomId}" data-type="room">&#10005;</a><a class="item" id="${room.RoomId}" data-type="room">${room.RoomName}</a></div>`
+                }
             }
 
             suppliers= await fetch(`http://localhost:5000/suppliers/`).then(response => response.json())
             suppliers= await suppliers
-            for (supplier of suppliers){
-                formSuppliers.innerHTML += `<div class="form-row"><a class="cross" id="${supplier.SupplierID}" data-type="supplier">&#10005;</a><a class="item" id="supplier-${supplier.SupplierID}">${supplier.SupplierName}</a> </div>`
+            for (supplier of suppliers) {
+                if (supplier.SupplierID != 1) {
+                   formSuppliers.innerHTML += `<div class="form-row "><a class="cross" id="${supplier.SupplierID}" data-type="supplier">&#10005;</a><a class="item" id="supplier-${supplier.SupplierID}">${supplier.SupplierName}</a> </div>`
+                }
             }
             fillRooms()
         }
@@ -48,6 +52,7 @@
             document.getElementById("room-list").innerHTML = list
         }
     </script>
+
     <style>
         /*Steel Blue: #4682B4*/
         /*Darker Steel Blue: #36628C*/
@@ -87,8 +92,8 @@
             border: none;
             outline: none;
             padding: 20px 50px;
-            background-color: #4682B4;
             border-radius: 10px;
+            margin-left: unset;
         }
         .level{
             display: unset;
@@ -100,30 +105,56 @@
         .return{
             text-align: right;
             cursor: pointer;
+            font-size: 25px;
+        }
+        .hidden{
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .item-row{
+            display: flex;
         }
         .alt-form{
+            position: absolute; z-index: 10; top: 0px;left: 0px;
+            margin-left: 45%;margin-top: 10%;
+            padding: 30px;
 
+        }
+        input{
+            display: block;
+            margin-bottom: 10px;
+        }
+        button{
+            display: block;
+            margin-left: auto;
+            background-color: #4682B4;
+            border:none;
+            padding-left:10px;
+            padding-right: 10px;
+            padding-bottom: 5px;
+            padding-top: 5px;
+            border-radius: 5px;
         }
     </style>
 </head>
 
 <body onload="load()">
 <div id="main-body">
-<form class="main-form">
+<form class="main-form ">
     <fieldset id="items">
     <button id="item-button" class="add-button">Add Item</button>
         </fieldset>
     <fieldset id="rooms">
     <button id="room-button" class="add-button">Add Room</button>
         </fieldset>
-    <fieldset id="suppliers">
-        <button id="supplier-button" class="add-button">Add Supplier</button>
+    <fieldset style="opacity: 0.5; pointer-events: none;" id="suppliers">
+        <button id="supplier-button" class="add-button" disabled>Add Supplier</button>
     </fieldset>
 </form>
 </div>
-<div id="item-form-container" class="alt-form" style="display: none;">
-    <div style="display: block;width: 100%;text-align: right;"> <span class="return">&#10005;</span></div>
-    <form id="item-form">
+<div id="item-form-container" class="alt-form" style="background-color: #B0C4DE; border-radius: 5px; display: none;">
+    <div style="display: block;width: 100%;text-align: right;grid-column: span 3"> <span class="return">&#10005;</span></div>
+    <form id="item-form" >
         <input style="display: none;" type="number" id="itemId" name="itemId" value="0">
         <label for="itemName">Item Name:</label>
         <input type="text" id="itemName" name="itemName" required>
@@ -137,7 +168,7 @@
         <button>Submit</button>
     </form>
 </div>
-<div id="room-form-container" class="alt-form" style="display: none;">
+<div id="room-form-container" class="alt-form" style="background-color: #B0C4DE; border-radius: 5px; display: none;">
     <div style="display: block;width: 100%;text-align: right;"> <span class="return">&#10005;</span></div>
     <form id="room-form">
         <label for="roomName">Room Name:</label>
@@ -184,7 +215,8 @@
         $(document).on("click",".add-button",async function(e) {
             e.preventDefault()
             temp = this.id
-            $("#main-body").hide()
+
+            $("#main-body").addClass("hidden")
             if (temp === "room-button"){
                 $("#room-form-container").show()
             }else if(temp ==="item-button"){
@@ -206,12 +238,10 @@
 
 
             $(".alt-form").hide()
-            $("#main-body").show()
-
+            $("#main-body").removeClass("hidden")
         })
         $(document).on("submit", "#room-form", async function(e) {
             e.preventDefault()
-
             room = {id:$("#roomId").val(),RoomName: $("#roomName").val()}
             if (room.id != 0){
                 try{
@@ -261,7 +291,7 @@
                 $("#roomName").val(targ.RoomName)
                 $("#roomId").val(targ.RoomId)
 
-                $("#main-body").hide()
+                $("#main-body").addClass("hidden")
                 $("#room-form-container").show()
             }else if (type == "item"){
                 for (item of items){
@@ -276,8 +306,8 @@
                 $("#incident").val(targ.IncidentLevel)
                 $("#room").val(targ.Room)
 
-               $("#main-body").hide()
-               $("#item-form-container").show()
+                $("#main-body").addClass("hidden")
+                $("#item-form-container").show()
 
 
             }
@@ -294,7 +324,6 @@
                     roomId = roomVal.RoomId
                 }
             }
-            console.log(roomId)
             item = {
                 StockID: 0,
                 ItemName: $("#itemName").val(),
@@ -304,7 +333,6 @@
                 IncidentLevel:parseFloat( $("#incident").val()),
                 LastLogID: 0
             }
-
             if ($("#itemId").val() != 0){
                 item.StockID = parseInt($("#itemId").val())
                 try{

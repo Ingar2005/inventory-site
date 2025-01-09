@@ -30,7 +30,9 @@
             rooms = await rooms
             inner = '<button class="tab tab-active" data-room="all">All</button>'
             for (room of rooms){
-               inner += `<button class='tab' data-room='${room.RoomName}'>${room.RoomName}</button>`
+                if (room.RoomId != 1) {
+                    inner += `<button class='tab' data-room='${room.RoomName}'>${room.RoomName}</button>`
+                }
             }
             filters.innerHTML = inner
         }
