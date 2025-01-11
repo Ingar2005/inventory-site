@@ -4,9 +4,135 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <title>Logs</title>
-</head>
-<body>
+  <script>
+    var logs
+    async function load() {
+      logs = await fetch('http://localhost:5000/logs').then(res => res.json())
+      logs = await logs
 
+      bod = document.getElementById('tbody')
+      inner = ""
+
+      for (log of logs) {
+        if (log.Daily != "true"){
+
+          let date = new Date(log.IncidentTime.Time)
+          let formatDate = `${date.getDay()}/${date.getDate()}/${date.getFullYear()}`
+
+          let before = log.TotalAfter - log.Differance
+          inner += `<tr class="log-row">
+                  <td> ${log.LogID}</td>
+                  <td>${formatDate}</td>
+                  <td class="item-name">${log.ItemName}</td>
+
+                   <td>${before}</td>
+                   <td>${log.TotalAfter}</td>
+                   <td class="differance ${log.Differance >=1 ? "pos": "neg"}">${log.Differance}</td>
+                   <td id="${log.LogID}" class="delete"><button>Delete</button></td>
+                  `
+        }
+      }
+      document.getElementById('tbody').innerHTML = inner
+
+    }
+  </script>
+    <title>Logs</title>
+  <style>
+    table{
+      /*margin-left: 0.75rem; !* 12px *!*/
+      /*margin-right: 0.75rem; !* 12px *!*/
+      overflow: scroll;
+      max-height: 100%;
+      min-width: 50vw;
+      border-spacing: 0;
+      border-spacing: 0;
+      border-spacing: unset;
+    }
+    thead{
+      background-color: #6694cb;
+    }
+    th{
+
+      color: rgb(241 245 249);
+    }
+    .log-row{
+      background-color: #cde0f0;
+    }
+    .log-row:hover{
+      background-color: #abcae5;
+      cursor: pointer;
+    }
+    .item-name{
+
+      font-weight: 700;
+    }
+    .differance{
+     background-color: #abcae5;
+    }
+    .delete{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+    }
+    button{
+       display: block;
+      background-color: #6694cb;
+      border:none;
+      padding-left:10px;
+      padding-right: 10px;
+      padding-bottom: 5px;
+      padding-top: 5px;
+      border-radius: 5px;
+    }
+    button:hover{
+      background-color: #517bbd;
+      cursor: pointer;
+    }
+    .pos{
+      color: green;
+    }
+    .neg{
+      color: red;
+    }
+
+  </style>
+</head>
+<body onload="load()">
+<table >
+  <thead>
+  <tr >
+    <th>id</th>
+    <th>Date Time</th>
+    <th>Item</th>
+    <th>Before</th>
+    <th>After</th>
+    <th>Change</th>
+    <th>Delete</th>
+  </tr>
+  </thead>
+
+  <tbody id="tbody">
+  </tbody>
+
+</table>
+<script>
+  $(document).on('click', '.delete', async function(){
+    let id = $(this).attr('id')
+
+    try{
+      let res = await fetch("http://localhost:5000/logs/" + id, {
+        method: "DELETE",
+      })
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      location.reload(true)
+    }catch(e) {
+      console.log(e)
+    }
+  })
+</script>
 </body>
+
 </html>

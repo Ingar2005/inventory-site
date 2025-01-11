@@ -131,41 +131,41 @@
         <button class="form-button" id="form-button" type="submit" form="stock-form">Submit</button>
     </span>
     <script>
-        $(document).ready(() => {
-            form = $('#stock-form');
-            form.on('submit', async function(e) {
-                e.preventDefault();
-                data = $("input")
-                for (let i = 0; i< stocks.length; i++){
-                    line = stocks[i]
-                    id = line.StockID;
-                    prevLevel = line.Level
-                    inputBox = $(`#stock${id}`)
-                    if (inputBox[0].value == prevLevel){
-                        continue
-                    }else{
-                        line.Level = parseFloat(inputBox[0].value)
-                        fetch('http://localhost:5000/fullStock/', {
-                            method: 'PATCH',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(line)
-                        })
-                            .then(response => response.text())
-                            .then(result => console.log("Response from server:", result))
-                            .catch(error => console.error("Error:", error))
+        $(document).on("click", ".form-button",async  function(e) {
 
-                    }
-                   location.reload(true)
+            form = $('#stock-form');
+            e.preventDefault();
+            data = $("input")
+            for (let i = 0; i< stocks.length; i++){
+                line = stocks[i]
+                id = line.StockID;
+                prevLevel = line.Level
+                inputBox = $(`#stock${id}`)
+                if ( $(`#rowstock${id}`)[0].classList.length == 1){
+                    continue
+                }else{
+                    line.Level = parseFloat(inputBox[0].value)
+                    fetch('http://localhost:5000/fullStock/', {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(line)
+                    })
+                        .then(response => response.text())
+                        .then(result => console.log("Response from server:", result))
+                        .catch(error => console.error("Error:", error))
 
                 }
-                })
+                location.reload(true)
+
+            }
+        })
+
             $(document).on("click",".form-row input",function(){
                 $(`#row${this.id}`).removeClass("form-row-changed");
                 $(`#row${this.id}`).addClass("form-row-changed");
             })
-        })
     </script>
     </body>
 </html>
